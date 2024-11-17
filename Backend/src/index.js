@@ -5,6 +5,7 @@ import { connectDB } from "./lib/db.js";
 import fileUpload from "express-fileupload";
 import path from "path";
 
+import { initializeSocket } from "./lib/socket.js";
 import cors from "cors";
 import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
@@ -12,11 +13,15 @@ import adminRoutes from "./routes/admin.route.js";
 import songRoutes from "./routes/song.route.js";
 import albumRoutes from "./routes/album.route.js";
 import statsRoutes from "./routes/stats.route.js";
+import { createServer } from "http";
 
 dotenv.config();
 const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.PORT;
+
+const httpServer = createServer(app);
+initializeSocket(httpServer)
 
 app.use(cors(
     {
@@ -50,11 +55,10 @@ app.use((err ,req, res, next) =>
     res.status(500).json({message: err.message});
 });
 
-app.listen(PORT, () =>
+httpServer.listen(PORT, () =>
 {
     console.log("Server is running on port " + PORT);
     connectDB();
 }
 );
 
-//todo: socket.io will be implemented here
